@@ -1,0 +1,20 @@
+{
+    "name": "Vue Game Server",
+    "version": "1.0.0",
+    "description": "Node server for Vue Game",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo 'No test specified' && exit 1",
+        "start": "nodemon app.js"
+    },
+    "keywords": [],
+    "author": "Linda Zheng",
+    "license": "",
+    "dependencies": {
+        "express": "^4.17.1",
+        "socket.io": "^2.3.0"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.4"
+    }
+}
