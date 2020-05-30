@@ -2,13 +2,14 @@ const Express = require("express")();
 const Http = require("http").Server(Express);
 const SocketIO = require("socket.io")(Http);
 
-let position = {
-    x: 200,
-    y: 200,
-};
+const state = {
+    games: []
+}
 
 SocketIO.on("connection", (socket) => {
-    socket.emit("position", position);
+    socket.emit("state", state);
+
+    socket.on('create', )
 
     socket.on("move", (data) => {
         switch (data) {

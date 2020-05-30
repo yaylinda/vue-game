@@ -2,10 +2,9 @@
     "name": "vue-game-server",
     "version": "1.0.0",
     "description": "Node server for Vue Game",
-    "main": "index.js",
     "scripts": {
         "test": "echo 'No test specified' && exit 1",
-        "start": "nodemon app.js"
+        "start": "nodemon server.js"
     },
     "keywords": [],
     "author": "Linda Zheng",
