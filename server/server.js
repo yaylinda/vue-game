@@ -1,7 +1,7 @@
 const express = require('express');
 const socketio = require('socket.io');
 
-const Game = require('./game');
+const GameManager = require('./gamemanager');
 
 // Setup an Express server
 const app = express();
@@ -16,24 +16,29 @@ const io = socketio(server);
 
 // Listen for socket.io connections
 io.on('connection', socket => {
-  console.log('Player connected!', socket.id);
+  console.log(`Player connected, with socket.id=${socket.id}`, socket.id);
 
-  socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
-  socket.on(Constants.MSG_TYPES.INPUT, handleInput);
+  socket.on('create', createGame);
+  socket.on('join', joinGame);
+  socket.on('input', handleInput);
   socket.on('disconnect', onDisconnect);
 });
 
-// Setup the Game
-const game = new Game();
+// Setup the GameManager and event handlers
+const gameManager = new GameManager();
 
-function joinGame(username) {
-  game.addPlayer(this, username);
+function createGame(gameId, username) {
+  gameManager.createGame(this, username);
 }
 
-function handleInput(dir) {
-  game.handleInput(this, dir);
+function joinGame(gameId, username) {
+  gameManager.addPlayerToGame(this, gameId, username);
 }
 
-function onDisconnect() {
-  game.removePlayer(this);
+function handleInput(gameId, username, input) {
+  gameManager.handleInput(this, gameId, username, input);
+}
+
+function onDisconnect(gameId, username) {
+  gameManager.removePlayer(this, gameId, username);
 }
