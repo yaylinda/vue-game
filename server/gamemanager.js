@@ -5,7 +5,8 @@ class GameManager {
         this.games = {};
         this.players = {};
 
-        setInterval(this.update.bind(this), 1000 / 60);
+        // TODO - uncomment this when ready
+        // setInterval(this.update.bind(this), 1000 / 60);
     }
 
     createGame(socket, username) {
@@ -33,3 +34,5 @@ class GameManager {
         // TODO
     }
 }
+
+module.exports = GameManager;

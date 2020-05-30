@@ -8,3 +8,5 @@ class Player {
         this.score = 0;
     }
 }
+
+module.exports = Player;

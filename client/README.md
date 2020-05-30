@@ -1,4 +1,4 @@
-# vue-game
+# client
 
 ## Project setup
 ```
