@@ -1,38 +1,39 @@
-const Express = require("express")();
-const Http = require("http").Server(Express);
-const SocketIO = require("socket.io")(Http);
+const express = require('express');
+const socketio = require('socket.io');
 
-const state = {
-    games: []
+const Game = require('./game');
+
+// Setup an Express server
+const app = express();
+
+// Listen on port
+const port = process.env.PORT || 3000;
+const server = app.listen(port);
+console.log(`Server listening on port ${port}`);
+
+// Setup socket.io
+const io = socketio(server);
+
+// Listen for socket.io connections
+io.on('connection', socket => {
+  console.log('Player connected!', socket.id);
+
+  socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
+  socket.on(Constants.MSG_TYPES.INPUT, handleInput);
+  socket.on('disconnect', onDisconnect);
+});
+
+// Setup the Game
+const game = new Game();
+
+function joinGame(username) {
+  game.addPlayer(this, username);
 }
 
-SocketIO.on("connection", (socket) => {
-    socket.emit("state", state);
+function handleInput(dir) {
+  game.handleInput(this, dir);
+}
 
-    socket.on('create', )
-
-    socket.on("move", (data) => {
-        switch (data) {
-            case 'left':
-                position.x -= 5;
-                SocketIO.emit("position", position);
-                break;
-            case 'right':
-                position.x += 5;
-                SocketIO.emit("position", position);
-                break;
-            case 'up':
-                position.y += 5;
-                SocketIO.emit("position", position);
-                break;
-            case 'down':
-                position.y -= 5;
-                SocketIO.emit("position", position);
-                break;
-        }
-    });
-});
-
-Http.listen(3000, () => {
-    console.log('Listening on port 3000...');
-});
+function onDisconnect() {
+  game.removePlayer(this);
+}
