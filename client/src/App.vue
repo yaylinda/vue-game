@@ -21,7 +21,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import GameWrapper from '@/components/GameWrapper.vue';
 import io from 'socket.io-client';
-import { VUE_GAME_SESSION_STR } from './util/constants';
+import { VUE_GAME_SESSION_STR } from './constants';
 
 @Component({
   components: {
@@ -30,8 +30,7 @@ import { VUE_GAME_SESSION_STR } from './util/constants';
 })
 export default class App extends Vue {
 
-  // TODO - move to const file or something
-  private host: string = 'http://localhost:3000';
+  private host: string = process.env.VUE_APP_SOCKET_HOST;
   private socket: any;
   private vueGameCookie: string;
 
