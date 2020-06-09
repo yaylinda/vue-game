@@ -16,8 +16,8 @@ const io = socketio(server);
 
 // Listen for socket.io connections
 io.on('connection', socket => {
-  console.log(`Player connected, with socket.id=${socket.id}`, socket.id);
-
+  onConnect(socket);
+  
   socket.on('create', createGame);
   socket.on('join', joinGame);
   socket.on('input', handleInput);
@@ -26,6 +26,10 @@ io.on('connection', socket => {
 
 // Setup the GameManager and event handlers
 const gameManager = new GameManager();
+
+function onConnect() {
+  gameManager.onConnect(this);
+}
 
 function createGame(gameId, username) {
   gameManager.createGame(this, username);

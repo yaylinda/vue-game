@@ -1,0 +1,1 @@
+export const VUE_GAME_SESSION_STR: string = 'Vue-Game-Session';

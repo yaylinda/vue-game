@@ -1,3 +1,6 @@
+const Pokedex = require('pokedex-promise-v2');
+const P = new Pokedex();
+
 class GameManager {
  
     constructor() {
@@ -7,6 +10,11 @@ class GameManager {
 
         // TODO - uncomment this when ready
         // setInterval(this.update.bind(this), 1000 / 60);
+    }
+
+    onConnect(socket) {
+        console.log(`onConnect - socket.id: ${socket.id}`);
+        // TODO
     }
 
     createGame(socket, username) {
