@@ -1,7 +1,4 @@
-const Pokedex = require('pokedex-promise-v2');
-const P = new Pokedex();
-
-class GameManager {
+export default class GameManager {
  
     constructor() {
         this.sockets = {};
@@ -42,5 +39,3 @@ class GameManager {
         // TODO
     }
 }
-
-module.exports = GameManager;

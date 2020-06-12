@@ -1,62 +1,59 @@
 <template>
-  <v-app class="app">
-
-    <v-app-bar app color="primary" dark>
+  <v-app class="app-wrapper">
+    <v-app-bar app color="primary">
       <v-toolbar-title>Random Pokemon Battle</v-toolbar-title>
     </v-app-bar>
 
-    <v-content>
-      <game-wrapper :socket="socket"/>
-    </v-content>
+      <v-content app>
+        <game-wrapper :socket="socket" />
+      </v-content>
 
-    <v-footer>
-      <v-spacer></v-spacer>
+    <v-footer app>
       <div>&copy; YayLinda {{ new Date().getFullYear() }}</div>
-  </v-footer>
-
+    </v-footer>
   </v-app>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import GameWrapper from '@/components/GameWrapper.vue';
-import io from 'socket.io-client';
-import { VUE_GAME_SESSION_STR } from './constants';
+import { Component, Prop, Vue } from "vue-property-decorator";
+import GameWrapper from "@/components/GameWrapper.vue";
+import io from "socket.io-client";
+import { VUE_GAME_SESSION_COOKIE_STR } from "./constants";
+// import store from './store';
 
 @Component({
   components: {
-    GameWrapper,
-  },
+    GameWrapper
+  }
 })
 export default class App extends Vue {
-
   private host: string = process.env.VUE_APP_SOCKET_HOST;
   private socket: any;
-  private vueGameCookie: string;
 
   created() {
-    console.log(`[App] - created`);
-
-    // TODO - enable this later
-    // this.socket = io(this.host);
-
-    this.vueGameCookie = this.$cookies.get(VUE_GAME_SESSION_STR);
-    if (!this.vueGameCookie) {
-      this.vueGameCookie = 
-    }
+    console.log(`[App] [created] - socketHost: ${this.host}`);
+    this.socket = io(this.host);
   }
 
   mounted() {
-    console.log(`[App] - mounted`);
+    console.log(`[App] [mounted]`);
 
+    const sessionCookie = this.$cookies.get(VUE_GAME_SESSION_COOKIE_STR);
+
+    this.socket.emit("getStateBySessionCookie", sessionCookie);
+
+    console.log(
+      `[App] [mounted] - emitted 'getStateBySessionCookie' with sessionCookie=${sessionCookie}`
+    );
   }
 }
 </script>
 
 <style lang="less">
-
-.app {
-  overflow: hidden;
+.app-wrapper {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100;
 }
-
 </style>
