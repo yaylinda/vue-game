@@ -21,4 +21,4 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-client/src/store.ts
+client/.env.*

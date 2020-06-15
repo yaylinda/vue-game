@@ -1,86 +1,68 @@
 <template>
-  <div class="game-wrapper">
-    <v-dialog v-model="showNamePrompt" persistent max-width="600px">
-      <v-card>
-        <v-card-title>
-          <span class="headline">Please enter a username to continue</span>
-        </v-card-title>
+  <v-container class="game-wrapper">
 
-        <v-container>
-          <v-text-field v-model="usernameInput" placeholder="Username" required></v-text-field>
-        </v-container>
+    
 
-        <v-card-actions>
-          <v-btn text @click="showNamePrompt = false">Close</v-btn>
-          <v-btn color="blue darken-1" text @click="closeAndSaveUsername()">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { VUE_GAME_SESSION_COOKIE_STR } from "../constants";
+import { db } from "@/firestore";
+import { FIRESTORE_COLLECTIONS } from '../constants';
 
-@Component
+@Component({
+
+})
 export default class GameWrapper extends Vue {
-  @Prop() private socket: any;
 
-  private showNamePrompt: boolean = false;
-  private showLandingPage: boolean = false;
-  private usernameInput: string = "";
+  @Prop() private sessionCookie!: string;
+  @Prop() private allPokemon!: any[];
 
-  private sessionCookie: string = "";
-  private username: string = "";
-  private gameIds: string[] = [];
+  private currentPokemon!: any;
+  private currentPokmeonSwipeData!: any;
+  private currentSessionCookieSwipeData!: any;
+  private aggregatedSwipeData!: any;
 
   mounted() {
-    this.socket.on("getUpdatedStateForSessionCookie", (response: any) => {
-      console.log(
-        `[GameWrapper] [mounted] - getStateBySessionCookie_response, response: ${JSON.stringify(
-          response
-        )}`
-      );
+    this.getRandomPokmeon();
+    this.getCurrentSwipeData();
+    this.aggregateSwipeData();
+  }
 
-      this.sessionCookie = response["state"]["sessionCookie"];
+  getRandomPokmeon() {
+    const randomIndex: number = Math.floor(Math.random() * Math.floor(this.allPokemon.length));
+    console.log(`[GameWrapper][getRandomPokmeon] - randomIndex: ${randomIndex}`);
 
-      this.$cookies.set(VUE_GAME_SESSION_COOKIE_STR, this.sessionCookie);
+    this.currentPokemon = this.allPokemon[randomIndex];
+    console.log(`[GameWrapper][getRandomPokmeon] - this.currentPokemon: ${JSON.stringify(this.currentPokemon)}`);
+  }
 
-      if (
-        !response["state"]["username"] &&
-        !response["state"]["gameIds"].length
-      ) {
-        this.showNamePrompt = true;
-      } else {
-        this.showLandingPage = true;
-        this.username = response["state"]["username"];
-        this.gameIds = response["state"]["gameIds"];
-        this.$toast.success(`Hello ${this.username}!`);
-      }
+  getCurrentSwipeData() {
+    db.collection(FIRESTORE_COLLECTIONS.POKEMON_SWIPES).doc(this.currentPokemon.id).get().then(snapshot => {
+      this.currentPokmeonSwipeData = snapshot.data();
+    console.log(`[GameWrapper][getCurrentSwipeData] - this.currentPokmeonSwipeData: ${JSON.stringify(this.currentPokmeonSwipeData)}`);
+    });
+
+    db.collection(FIRESTORE_COLLECTIONS.SESSION_COOKIE_SWIPES).doc(this.sessionCookie).get().then(snapshot => {
+      this.currentSessionCookieSwipeData = snapshot.data();
+          console.log(`[GameWrapper][getCurrentSwipeData] - this.currentSessionCookieSwipeData: ${JSON.stringify(this.currentSessionCookieSwipeData)}`);
+
     });
   }
 
-  closeAndSaveUsername() {
-    console.log(
-      `closeAndSaveUserthis.usernameInputname - usernameInput: ${this.usernameInput}`
-    );
+  aggregateSwipeData() {
+    const aggregated = {};
 
-    if (this.usernameInput.length > 3) {
-      this.showNamePrompt = false;
+    this.aggregatedSwipeData = aggregated;
+  }
 
-      this.socket.emit(
-        "setUsernameForSessionCookie",
-        this.sessionCookie,
-        this.usernameInput
-      );
-    }
+  persistSwipe(selected: boolean) {
+    db.collection(FIRESTORE_COLLECTIONS.POKEMON_SWIPES)
   }
 }
 </script>
 
 <style scoped lang="less">
-.game-canvas {
-  border: 1px solid black;
-}
+
 </style>

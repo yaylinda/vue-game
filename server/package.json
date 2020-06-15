@@ -3,8 +3,8 @@
     "version": "1.0.0",
     "description": "Node server for Vue Game",
     "scripts": {
-        "test": "echo 'No test specified' && exit 1",
-        "start": "nodemon src/server.js"
+        "serve": "nodemon src/server.js",
+        "test": "echo 'No test specified' && exit 1"
     },
     "type": "module",
     "keywords": [],
