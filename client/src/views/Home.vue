@@ -1,14 +1,21 @@
 <template>
   <v-container class="home">
 
-    <v-container v-if="showUsernameInput" class="username-input">
-      <v-text-field v-model="usernameInput" label="Outlined" placeholder="Placeholder" outlined />
+<v-container v-if="showAuthedState">
+      <GameWrapper :sessionCookie="sessionCookie"/>
+    </v-container>
+
+    <v-container v-else class="username-input">
+      <v-text-field 
+        v-model="usernameInput" 
+        label="Please enter a username to continue" 
+        placeholder="Username" 
+        outlined 
+      />
       <v-btn @click="setAndPersistUsername" color="primary">Submit</v-btn>
     </v-container>
 
-    <v-container v-if="showAuthedState">
-      <GameWrapper sessionCookie="sessionCookie" allPokemon="allPokemon"/>
-    </v-container>
+    
 
   </v-container>
 </template>
@@ -17,7 +24,8 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import {
   FIRESTORE_COLLECTIONS,
-  VUE_GAME_SESSION_COOKIE_STR
+  VUE_GAME_SESSION_COOKIE_STR,
+  VUE_GAME_SESSION_DATA_STR,
 } from "@/constants";
 import { db } from "@/firestore";
 import firebase from "firebase/app";
@@ -31,10 +39,8 @@ import GameWrapper from "@/components/GameWrapper.vue";
 })
 export default class Home extends Vue {
   // States
-  private showUsernameInput: boolean = false;
   private showAuthedState: boolean = false;
 
-  private allPokemon: any[] = [];
   private sessionCookie!: string;
   private sessionData!: any;
 
@@ -42,17 +48,17 @@ export default class Home extends Vue {
 
   mounted() {
     this.sessionCookie = this.$cookies.get(VUE_GAME_SESSION_COOKIE_STR);
+    this.sessionData = this.$cookies.get(VUE_GAME_SESSION_DATA_STR);
 
-    if (this.sessionCookie) {
+    if (this.sessionCookie && !this.sessionData) {
       this.getSessionDataFromSessionCookie();
+    } else if (!this.sessionCookie) {
+      this.showAuthedState = false;
     } else {
-      this.showUsernameInput = true;
+      this.showAuthedState = true;
+      this.$toast.success(`Hello ${this.sessionData.username}`);
+      console.log(`[Home][mounted] - no need to fetch data from db, this.sessionCookie: ${this.sessionCookie}, this.sessionData: ${JSON.stringify(this.sessionData)}`)
     }
-
-    db.collection(FIRESTORE_COLLECTIONS.POKEMON_REGISTRY).get().then(querySnapshot => {
-      this.allPokemon = querySnapshot.docs.map(doc => doc.data());
-      console.log(`[App][mounted] - retreived ${this.allPokemon.length} pokemon`);
-    });
   }
 
   getSessionDataFromSessionCookie() {
@@ -65,15 +71,16 @@ export default class Home extends Vue {
       .then(snapshot => {
         this.sessionData = snapshot.data();
         console.log(
-          `[App][mounted] - got sessionData: ${JSON.stringify(
+          `[App][getSessionDataFromSessionCookie] - got sessionData: ${JSON.stringify(
             this.sessionData
           )}`
         );
         if (this.sessionData) {
-          this.$toast.success(`Hello ${this.sessionData.username}`);
           this.showAuthedState = true;
+          this.$toast.success(`Hello ${this.sessionData.username}`);
+          this.$cookies.set(VUE_GAME_SESSION_DATA_STR, this.sessionData);
         } else {
-          this.showUsernameInput = true;
+          this.showAuthedState = false;
         }
       });
   }
@@ -87,7 +94,7 @@ export default class Home extends Vue {
       .collection(FIRESTORE_COLLECTIONS.SESSION_COOKIES)
       .add({
         username: this.usernameInput,
-        createdTime: firebase.firestore.FieldValue.serverTimestamp()
+        createdTime: firebase.firestore.FieldValue.serverTimestamp(),
       });
 
     console.log(

@@ -1,0 +1,129 @@
+<template>
+  <v-container class="game-wrapper">
+    <v-card v-if="currentPokemon">
+      <v-card-title>{{getPokemonNameUppercase()}} #{{currentPokemon.id}}</v-card-title>
+      <v-card-subtitle>{{currentPokemon.types.map(t => t.type.name).join(', ')}}</v-card-subtitle>
+
+      <v-img :src="currentPokemon.sprites.front_default" />
+
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="clickRject()" color="error">Reject</v-btn>
+        <v-spacer />
+        <v-btn @click="clickChoose()" color="success">Choose</v-btn>
+        <v-spacer />
+      </v-card-actions>
+    </v-card>
+  </v-container>
+</template>
+
+<script lang="ts">
+import { Component, Prop, Vue } from "vue-property-decorator";
+import { db } from "@/firestore";
+import { FIRESTORE_COLLECTIONS, POKEAPI_BASE_URL, MAX_POKEMON_INDEX } from "../constants";
+import firebase from "firebase/app";
+import lodash from 'lodash';
+
+@Component({})
+export default class GameWrapper extends Vue {
+  @Prop() private sessionCookie!: string;
+
+  private loading: boolean = false;
+
+  private currentPokemon: any = null;
+  private swipeData!: any[];
+  private aggregatedSwipeData!: any;
+
+  async mounted() {
+    await this.getRandomPokmeon();
+    // this.getSwipeData(this.currentPokemon.id, this.sessionCookie);
+    this.aggregateSwipeData();
+  }
+
+  async getRandomPokmeon() {
+    const randomIndex: number = Math.floor(
+      Math.random() * Math.floor(MAX_POKEMON_INDEX)
+    );
+    console.log(
+      `[GameWrapper][getRandomPokmeon] - randomIndex: ${randomIndex}`
+    );
+
+    this.currentPokemon = await this.getPokmeonData(randomIndex);
+    console.log(
+      `[GameWrapper][getRandomPokmeon] - this.currentPokemon: ${JSON.stringify(
+        this.currentPokemon
+      )}`
+    );
+  }
+
+  getSwipeData(pokemonId: number, sessionCookie: string) {
+    console.log(`[GameWrapper][getSwipeData] - pokemonId: ${pokemonId}, sessionCookie: ${sessionCookie}`);
+    db.collection(FIRESTORE_COLLECTIONS.SWIPES)
+      .where("pokemonId", "==", pokemonId)
+      .where("sessionCookie", "==", sessionCookie)
+      .get()
+      .then(querySnapshot => {
+        this.swipeData = querySnapshot.docs.map(doc => doc.data());
+        console.log(`[GameWrapper][getSwipeData] - got ${this.swipeData.length} swipeData`);
+      });
+  }
+
+  aggregateSwipeData() {
+    // TODO - implement aggregation logic
+
+    this.aggregatedSwipeData = {
+      pokemon: {
+        chosen: 10,
+        rejected: 11,
+      },
+      sessionCookie: {
+        chosen: 12,
+        rejected: 13,
+      },
+    };
+  }
+
+  clickChoose() {
+    console.log(`[GameWrapper][clickChoose]`);
+    this.persistSwipe(true);
+  }
+
+  clickRject() {
+    console.log(`[GameWrapper][clickReject]`);
+    this.persistSwipe(false);
+  }
+
+  async persistSwipe(selected: boolean) {
+    const swipeData = {
+      pokemonId: this.currentPokemon.id,
+      pokemonName: this.currentPokemon.name,
+      sessionCookie: this.sessionCookie,
+      swipeTime: firebase.firestore.FieldValue.serverTimestamp(),
+      selected: selected
+    };
+    
+    await db.collection(FIRESTORE_COLLECTIONS.SWIPES).add(swipeData);
+  }
+
+  async getPokmeonData(pokemonId: number) {
+    const pokemonUrl = `${POKEAPI_BASE_URL}/${pokemonId}`;
+    console.log(
+      `[GameWrapper][getPokmeonData] - fetching data from pokemonUrl: ${pokemonUrl}`
+    );
+
+    const data = await fetch(pokemonUrl).then(response => response.json());
+
+    return data;
+  }
+
+  getPokemonNameUppercase() {
+    return lodash.startCase(this.currentPokemon.name);
+  }
+}
+</script>
+
+<style scoped lang="less">
+.game-wrapper {
+  width: 600px;
+}
+</style>
