@@ -1,22 +1,18 @@
 <template>
   <v-container class="home">
-
-<v-container v-if="showAuthedState">
-      <GameWrapper :sessionCookie="sessionCookie"/>
+    <v-container v-if="showAuthedState">
+      <GameWrapper :sessionCookie="sessionCookie" />
     </v-container>
 
     <v-container v-else class="username-input">
-      <v-text-field 
-        v-model="usernameInput" 
-        label="Please enter a username to continue" 
-        placeholder="Username" 
-        outlined 
+      <v-text-field
+        v-model="usernameInput"
+        label="Please enter a username to continue"
+        placeholder="Username"
+        outlined
       />
       <v-btn @click="setAndPersistUsername" color="primary">Submit</v-btn>
     </v-container>
-
-    
-
   </v-container>
 </template>
 
@@ -25,12 +21,11 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import {
   FIRESTORE_COLLECTIONS,
   VUE_GAME_SESSION_COOKIE_STR,
-  VUE_GAME_SESSION_DATA_STR,
+  VUE_GAME_SESSION_DATA_STR
 } from "@/constants";
 import { db } from "@/firestore";
 import firebase from "firebase/app";
 import GameWrapper from "@/components/GameWrapper.vue";
-
 
 @Component({
   components: {
@@ -57,7 +52,11 @@ export default class Home extends Vue {
     } else {
       this.showAuthedState = true;
       this.$toast.success(`Hello ${this.sessionData.username}`);
-      console.log(`[Home][mounted] - no need to fetch data from db, this.sessionCookie: ${this.sessionCookie}, this.sessionData: ${JSON.stringify(this.sessionData)}`)
+      console.log(
+        `[Home][mounted] - no need to fetch data from db, this.sessionCookie: ${
+          this.sessionCookie
+        }, this.sessionData: ${JSON.stringify(this.sessionData)}`
+      );
     }
   }
 
@@ -94,7 +93,7 @@ export default class Home extends Vue {
       .collection(FIRESTORE_COLLECTIONS.SESSION_COOKIES)
       .add({
         username: this.usernameInput,
-        createdTime: firebase.firestore.FieldValue.serverTimestamp(),
+        createdTime: firebase.firestore.FieldValue.serverTimestamp()
       });
 
     console.log(

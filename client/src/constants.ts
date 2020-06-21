@@ -15,3 +15,10 @@ export const FIRESTORE_COLLECTIONS = {
 export const POKEAPI_BASE_URL: string = 'https://pokeapi.co/api/v2/pokemon';
 
 export const MAX_POKEMON_INDEX: number = 808; // 807 + 1
+
+export const COLORS = {
+    PASTEL_PINK: '#ffd5e5',
+    PASTEL_YELLOW: '#ffffdd',
+    PASTEL_GREEN: '#a0ffe6',
+    PASTEL_BLUE: '#81f5ff',
+};
