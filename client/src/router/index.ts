@@ -11,13 +11,15 @@ Vue.use(VueRouter)
     component: Home
   },
   {
-    path: '/about',
-    name: 'About',
-    component: () => import('../views/About.vue')
+    path: '/games/:gameId',
+    name: 'Games',
+    component: () => import('../views/Game.vue')
   }
 ]
 
 const router = new VueRouter({
+  mode: 'hash',
+  base: '/vue-game/',
   routes
 })
 

@@ -1,20 +1,19 @@
 <template>
-  <v-container class="game-wrapper">
+  <v-container class="gameboard">
     <div class="grid">
       <div class="row" v-for="(row, rowIndex) in data" :key="rowIndex">
-        <Drop
+        <drop
           @drop="onDrop(rowIndex, colIndex)"
           class="cell"
           v-for="(cell, colIndex) in row"
           :key="colIndex"
         >
           <div class="cell-content">
-            <Drag class="cell-drag" :data="cell" @mousedown="onClick(cell)">
+            <drag class="cell-drag" :data="cell" @mousedown="onClick(cell)">
               <img class="pokemon-sprite" v-if="cell.url" :src="cell.url" />
-            </Drag>
-            <div>{{cell.row}}, {{cell.col}}</div>
+            </drag>
           </div>
-        </Drop>
+        </drop>
       </div>
     </div>
   </v-container>
@@ -38,35 +37,10 @@ import { Drag, Drop } from "vue-easy-dnd";
     Drop
   }
 })
-export default class GameWrapper extends Vue {
-  @Prop() private sessionCookie!: string;
+export default class Gameboard extends Vue {
+  @Prop() private data!: any[][];
 
-  private data!: any[][];
   private dndData!: any;
-
-  constructor() {
-    super();
-
-    this.data = [];
-
-    const numRows = 2;
-    const numCols = 2;
-
-    for (let i = 0; i < numRows; i++) {
-      let row = [];
-      for (let j = 0; j < numCols; j++) {
-        row.push({
-          row: i,
-          col: j,
-          url: ""
-        });
-      }
-      this.data.push(row);
-    }
-
-    this.data[1][1].url =
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png";
-  }
 
   onDrop(row: number, col: number) {
     console.log(`onDrop - row: ${row}, col: ${col}`);
@@ -96,11 +70,19 @@ export default class GameWrapper extends Vue {
 }
 
 .cell:hover {
-  background-color: #81f5ff;
+  box-shadow: 0 0 5px rgba(0, 0, 255, 0.4);
 }
 
 .cell:not(:last-child) {
   margin-right: 1rem;
+}
+
+.drop-allowed {
+  background-color: rgba(0, 255, 0, 0.2);
+}
+
+.drop-forbidden {
+  background-color: rgba(255, 0, 0, 0.2);
 }
 
 .pokemon-sprite {

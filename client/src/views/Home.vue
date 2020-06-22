@@ -1,7 +1,9 @@
 <template>
   <v-container class="home">
-    <v-container v-if="showAuthedState">
-      <GameWrapper :sessionCookie="sessionCookie" />
+    <v-container v-if="showAuthedState" class="game-option-buttons">
+      <v-list></v-list>
+
+      <v-btn class="full-size-button" color="success" rounded @click="newGame()">New Game</v-btn>
     </v-container>
 
     <v-container v-else class="username-input">
@@ -25,15 +27,12 @@ import {
 } from "@/constants";
 import { db } from "@/firestore";
 import firebase from "firebase/app";
-import GameWrapper from "@/components/GameWrapper.vue";
+import { createInitialGameboard } from "@/game-utils";
 
 @Component({
-  components: {
-    GameWrapper
-  }
+  components: {}
 })
 export default class Home extends Vue {
-  // States
   private showAuthedState: boolean = false;
 
   private sessionCookie!: string;
@@ -103,8 +102,26 @@ export default class Home extends Vue {
     this.$cookies.set(VUE_GAME_SESSION_COOKIE_STR, this.sessionCookie);
     this.getSessionDataFromSessionCookie();
   }
+
+  async newGame() {
+    const {initialX, initialY, gameboard } = createInitialGameboard(10, 10);
+
+    const result = await db.collection(FIRESTORE_COLLECTIONS.GAMES).add({
+      createdTime: firebase.firestore.FieldValue.serverTimestamp(),
+      createdBy: this.sessionCookie,
+      gameboard: gameboard,
+      initialX: initialX,
+      initialY: initialY,
+    });
+
+    console.log(`[App][newGame] - created game entry with gameId=${result.id}`);
+    this.$router.push({ path: `/games/${result.id}` });
+  }
 }
 </script>
 
 <style scoped lang="less">
+.full-size-button {
+  width: 100%;
+}
 </style>
