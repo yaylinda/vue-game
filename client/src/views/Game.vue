@@ -1,7 +1,7 @@
 <template>
   <v-container class="game">
     <div v-if="!loading">
-      <gameboard :data="gameData.gameboard" />
+      <gameboard :data="gameData.gameboard" :targetX="targetX" :targetY="targetY" />
     </div>
   </v-container>
 </template>
@@ -16,6 +16,7 @@ import {
 import { db } from "@/firestore";
 import firebase from "firebase/app";
 import Gameboard from "@/components/Gameboard.vue";
+import { calculateNewPosition } from "@/game-utils";
 
 @Component({
   components: {
@@ -26,7 +27,10 @@ export default class Game extends Vue {
   private sessionCookie!: string;
   private sessionData!: any;
   private loading: boolean = true;
-  private gameData!: any; // from db
+
+  private gameData: any = {};
+  private targetX: number = 0;
+  private targetY: number = 0;
 
   constructor() {
     super();
@@ -42,6 +46,8 @@ export default class Game extends Vue {
       .get()
       .then(snapshot => {
         this.gameData = snapshot.data();
+        this.targetX = this.gameData.initialX;
+        this.targetY = this.gameData.initialY;
 
         if (this.gameData) {
           this.loading = false;
@@ -58,37 +64,44 @@ export default class Game extends Vue {
       });
 
     window.addEventListener("keydown", e => {
-      console.log(`[Game][mounted] - ${e.keyCode}`);
-      if (e.keyCode === 37) {
-        // left
-        this.moveLeft();
-      } else if (e.keyCode === 38) {
-        // up
-        this.moveUp();
-      } else if (e.keyCode === 39) {
-        // right
-        this.moveRight();
-      } else if (e.keyCode === 40) {
-        // down
-        this.moveDown();
+      if (e.keyCode >= 37 && e.keyCode <= 40) {
+        const targetUrl = this.gameData.gameboard[this.targetX][this.targetY]
+          .url;
+        this.gameData.gameboard[this.targetX][this.targetY].url = "";
+
+        if (e.keyCode === 37) {
+          console.log(`[Game][moveLeft]`);
+          this.targetY = calculateNewPosition(
+            this.targetY,
+            -1,
+            Object.keys(this.gameData.gameboard).length
+          );
+        } else if (e.keyCode === 38) {
+          console.log(`[Game][moveUp]`);
+          this.targetX = calculateNewPosition(
+            this.targetX,
+            -1,
+            Object.keys(this.gameData.gameboard).length
+          );
+        } else if (e.keyCode === 39) {
+          console.log(`[Game][moveRight]`);
+          this.targetY = calculateNewPosition(
+            this.targetY,
+            1,
+            Object.keys(this.gameData.gameboard).length
+          );
+        } else if (e.keyCode === 40) {
+          console.log(`[Game][moveDown]`);
+          this.targetX = calculateNewPosition(
+            this.targetX,
+            1,
+            Object.keys(this.gameData.gameboard).length
+          );
+        }
+
+        this.gameData.gameboard[this.targetX][this.targetY].url = targetUrl;
       }
     });
-  }
-
-  moveLeft() {
-    console.log(`[Game][moveLeft]`);
-  }
-
-  moveUp() {
-    console.log(`[Game][moveUp]`);
-  }
-
-  moveRight() {
-    console.log(`[Game][moveRight]`);
-  }
-
-  moveDown() {
-    console.log(`[Game][moveDown]`);
   }
 }
 </script>

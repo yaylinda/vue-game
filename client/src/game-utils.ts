@@ -27,8 +27,8 @@ export const createInitialGameboard = (numRows: number, numCols: number) => {
       initialX: initialX,
       initialY: initialY,
       gameboard: convertGameboardToObject(gameboard)
-    }
-}
+    };
+};
 
 export const convertGameboardToObject = (gameboard: any[][]) => {
   const gameboardObject: any = {};
@@ -38,4 +38,18 @@ export const convertGameboardToObject = (gameboard: any[][]) => {
   }
 
   return gameboardObject;
-}
+};
+
+export const calculateNewPosition = (oldPosition: number, increment: number, numRows: number): number => {
+  let newPosition: number = oldPosition + increment; // pass in -1 for Left and Down
+
+  if (newPosition < 0) {
+    return numRows - 1;
+  }
+
+  if (newPosition === numRows) {
+    return 0;
+  }
+
+  return newPosition;
+};

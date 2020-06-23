@@ -2,18 +2,17 @@
   <v-container class="gameboard">
     <div class="grid">
       <div class="row" v-for="(row, rowIndex) in data" :key="rowIndex">
-        <drop
-          @drop="onDrop(rowIndex, colIndex)"
+        <div
           class="cell"
           v-for="(cell, colIndex) in row"
           :key="colIndex"
         >
           <div class="cell-content">
-            <drag class="cell-drag" :data="cell" @mousedown="onClick(cell)">
+            <div>
               <img class="pokemon-sprite" v-if="cell.url" :src="cell.url" />
-            </drag>
+            </div>
           </div>
-        </drop>
+        </div>
       </div>
     </div>
   </v-container>
@@ -39,17 +38,10 @@ import { Drag, Drop } from "vue-easy-dnd";
 })
 export default class Gameboard extends Vue {
   @Prop() private data!: any[][];
+  @Prop() private targetX!: number;
+  @Prop() private targetY!: number;
 
   private dndData!: any;
-
-  onDrop(row: number, col: number) {
-    console.log(`onDrop - row: ${row}, col: ${col}`);
-    console.log(`onDrop - this.dndData: ${JSON.stringify(this.dndData)}`);
-
-    this.data[row][col].url = this.dndData.url;
-    this.data[this.dndData.row][this.dndData.col].url = "";
-    this.dndData = null;
-  }
 
   onClick(cell: any) {
     this.dndData = cell;
@@ -58,35 +50,27 @@ export default class Gameboard extends Vue {
 </script>
 
 <style scoped lang="less">
-.row:not(:last-child) {
-  margin-bottom: 1rem;
+.cell {
+  width: 2rem;
+  height: 2rem;
+  border-top: 1px solid gray;
+  border-left: 1px solid gray;
 }
 
-.cell {
-  width: 5rem;
-  height: 5rem;
-  border-radius: 0.5rem;
-  border: 1px solid black;
+.cell:last-child {
+    border-right: 1px solid gray;
+}
+
+.row:last-child > .cell {
+    border-bottom: 1px solid gray;
 }
 
 .cell:hover {
   box-shadow: 0 0 5px rgba(0, 0, 255, 0.4);
 }
 
-.cell:not(:last-child) {
-  margin-right: 1rem;
-}
-
-.drop-allowed {
-  background-color: rgba(0, 255, 0, 0.2);
-}
-
-.drop-forbidden {
-  background-color: rgba(255, 0, 0, 0.2);
-}
-
 .pokemon-sprite {
-  height: 2rem;
-  width: 2rem;
+  height: 1rem;
+  width: 1rem;
 }
 </style>
