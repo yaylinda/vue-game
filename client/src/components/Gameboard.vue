@@ -1,7 +1,7 @@
 <template>
   <v-container class="gameboard">
     <div class="grid">
-      <div class="row" v-for="(row, rowIndex) in data" :key="rowIndex">
+      <div class="row" v-for="(row, rowIndex) in gameboard" :key="rowIndex">
         <div
           class="cell"
           v-for="(cell, colIndex) in row"
@@ -9,7 +9,7 @@
         >
           <div class="cell-content">
             <div>
-              <img class="pokemon-sprite" v-if="cell.url" :src="cell.url" />
+              <img class="pokemon-sprite" v-if="cell.data.url" :src="cell.data.url" />
             </div>
           </div>
         </div>
@@ -37,7 +37,7 @@ import { Drag, Drop } from "vue-easy-dnd";
   }
 })
 export default class Gameboard extends Vue {
-  @Prop() private data!: any[][];
+  @Prop() private gameboard!: any[][];
   @Prop() private targetX!: number;
   @Prop() private targetY!: number;
 
@@ -53,16 +53,20 @@ export default class Gameboard extends Vue {
 .cell {
   width: 2rem;
   height: 2rem;
-  border-top: 1px solid gray;
-  border-left: 1px solid gray;
+  border-top: 1px solid lightgray;
+  border-left: 1px solid lightgray;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .cell:last-child {
-    border-right: 1px solid gray;
+    border-right: 1px solid lightgray;
 }
 
 .row:last-child > .cell {
-    border-bottom: 1px solid gray;
+    border-bottom: 1px solid lightgray;
 }
 
 .cell:hover {
@@ -70,7 +74,7 @@ export default class Gameboard extends Vue {
 }
 
 .pokemon-sprite {
-  height: 1rem;
-  width: 1rem;
+  height: 1.5rem;
+  width: 1.5rem;
 }
 </style>

@@ -3,11 +3,11 @@ export const VUE_GAME_SESSION_DATA_STR: string = 'Vue-Game-Session-Data';
 
 export const FIRESTORE_COLLECTIONS = {
     SESSION_COOKIES: 'sessionCookies',
-    SWIPES: 'swipes', 
+    SWIPES: 'swipes',
 
     PLAYERS: 'players',
     GAMES: 'games',
-    
+
     POKEMON_SWIPES: 'pokemonSwipes', // pokemonName -> sessionCookie -> count
     SESSION_COOKIE_SWIPES: 'sessionCookieSwipes', // sessionCookie -> pokemonName -> count
 };
@@ -22,3 +22,11 @@ export const COLORS = {
     PASTEL_GREEN: '#a0ffe6',
     PASTEL_BLUE: '#81f5ff',
 };
+
+export const GAMEBOARD_CELL_DATA_TYPES = {
+    POKEMON: 'POKEMON',
+    POWER_UP: 'POWER_UP',
+    BLOCKER: 'BLOCKER', // can't go through it
+};
+
+export const POKEBALL_SPRITE_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';

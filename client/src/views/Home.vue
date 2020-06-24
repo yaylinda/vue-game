@@ -104,14 +104,18 @@ export default class Home extends Vue {
   }
 
   async newGame() {
-    const {initialX, initialY, gameboard } = createInitialGameboard(10, 10);
+    const { initialX, initialY, gameboard } = createInitialGameboard(
+      10,
+      10,
+      this.sessionCookie
+    );
 
     const result = await db.collection(FIRESTORE_COLLECTIONS.GAMES).add({
       createdTime: firebase.firestore.FieldValue.serverTimestamp(),
       createdBy: this.sessionCookie,
       gameboard: gameboard,
       initialX: initialX,
-      initialY: initialY,
+      initialY: initialY
     });
 
     console.log(`[App][newGame] - created game entry with gameId=${result.id}`);

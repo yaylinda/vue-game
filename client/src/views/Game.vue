@@ -1,7 +1,7 @@
 <template>
   <v-container class="game">
     <div v-if="!loading">
-      <gameboard :data="gameData.gameboard" :targetX="targetX" :targetY="targetY" />
+      <gameboard :gameboard="gameData.gameboard" :targetX="targetX" :targetY="targetY" />
     </div>
   </v-container>
 </template>
@@ -11,7 +11,8 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import {
   FIRESTORE_COLLECTIONS,
   VUE_GAME_SESSION_COOKIE_STR,
-  VUE_GAME_SESSION_DATA_STR
+  VUE_GAME_SESSION_DATA_STR,
+  GAMEBOARD_CELL_DATA_TYPES
 } from "@/constants";
 import { db } from "@/firestore";
 import firebase from "firebase/app";
@@ -65,43 +66,76 @@ export default class Game extends Vue {
 
     window.addEventListener("keydown", e => {
       if (e.keyCode >= 37 && e.keyCode <= 40) {
-        const targetUrl = this.gameData.gameboard[this.targetX][this.targetY]
-          .url;
-        this.gameData.gameboard[this.targetX][this.targetY].url = "";
-
-        if (e.keyCode === 37) {
-          console.log(`[Game][moveLeft]`);
-          this.targetY = calculateNewPosition(
-            this.targetY,
-            -1,
-            Object.keys(this.gameData.gameboard).length
-          );
-        } else if (e.keyCode === 38) {
-          console.log(`[Game][moveUp]`);
-          this.targetX = calculateNewPosition(
-            this.targetX,
-            -1,
-            Object.keys(this.gameData.gameboard).length
-          );
-        } else if (e.keyCode === 39) {
-          console.log(`[Game][moveRight]`);
-          this.targetY = calculateNewPosition(
-            this.targetY,
-            1,
-            Object.keys(this.gameData.gameboard).length
-          );
-        } else if (e.keyCode === 40) {
-          console.log(`[Game][moveDown]`);
-          this.targetX = calculateNewPosition(
-            this.targetX,
-            1,
-            Object.keys(this.gameData.gameboard).length
-          );
-        }
-
-        this.gameData.gameboard[this.targetX][this.targetY].url = targetUrl;
+        this.handleMovement(e.keyCode);
       }
     });
+  }
+
+  handleMovement(keyCode: number) {
+    let newX = this.targetX;
+    let newY = this.targetY;
+
+    if (keyCode === 37) {
+      console.log(`[Game][moveLeft]`);
+      newY = calculateNewPosition(
+        this.targetY,
+        -1,
+        Object.keys(this.gameData.gameboard).length
+      );
+    } else if (keyCode === 38) {
+      console.log(`[Game][moveUp]`);
+      newX = calculateNewPosition(
+        this.targetX,
+        -1,
+        Object.keys(this.gameData.gameboard).length
+      );
+    } else if (keyCode === 39) {
+      console.log(`[Game][moveRight]`);
+      newY = calculateNewPosition(
+        this.targetY,
+        1,
+        Object.keys(this.gameData.gameboard).length
+      );
+    } else if (keyCode === 40) {
+      console.log(`[Game][moveDown]`);
+      newX = calculateNewPosition(
+        this.targetX,
+        1,
+        Object.keys(this.gameData.gameboard).length
+      );
+    }
+
+    if (!this.gameData.gameboard[newX][newY].data.type) {
+      // empty cell, move in freely
+      return;
+    }
+
+    if (
+      this.gameData.gameboard[newX][newY].data.type ===
+      GAMEBOARD_CELL_DATA_TYPES.BLOCKER
+    ) {
+      // can't move; stay where you are
+      return;
+    }
+
+    if (
+      this.gameData.gameboard[newX][newY].data.type ===
+      GAMEBOARD_CELL_DATA_TYPES.POWER_UP
+    ) {
+      // move in, add powerup to list (need to show UI too)
+    }
+
+    if (
+      this.gameData.gameboard[newX][newY].data.type ===
+      GAMEBOARD_CELL_DATA_TYPES.POKEMON
+    ) {
+      // start pokemon battle, winner stays
+    }
+
+    const targetUrl = this.gameData.gameboard[this.targetX][this.targetY].data
+      .url;
+    this.gameData.gameboard[this.targetX][this.targetY].data.url = "";
+    this.gameData.gameboard[this.targetX][this.targetY].data.url = targetUrl;
   }
 }
 </script>
