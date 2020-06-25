@@ -2,11 +2,7 @@
   <v-container class="gameboard">
     <div class="grid">
       <div class="row" v-for="(row, rowIndex) in gameboard" :key="rowIndex">
-        <div
-          class="cell"
-          v-for="(cell, colIndex) in row"
-          :key="colIndex"
-        >
+        <div class="cell" v-for="(cell, colIndex) in row" :key="colIndex">
           <div class="cell-content">
             <div>
               <img class="pokemon-sprite" v-if="cell.data.url" :src="cell.data.url" />
@@ -62,11 +58,11 @@ export default class Gameboard extends Vue {
 }
 
 .cell:last-child {
-    border-right: 1px solid lightgray;
+  border-right: 1px solid lightgray;
 }
 
 .row:last-child > .cell {
-    border-bottom: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
 }
 
 .cell:hover {
